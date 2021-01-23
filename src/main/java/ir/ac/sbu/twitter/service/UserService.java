@@ -4,6 +4,7 @@ import ir.ac.sbu.twitter.UserDTO.UserCreate;
 import ir.ac.sbu.twitter.UserDTO.UserProfile;
 import ir.ac.sbu.twitter.exception.DuplicateInputError;
 import ir.ac.sbu.twitter.exception.InvalidInput;
+import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -40,8 +42,8 @@ public class UserService {
         UserProfile userProfile = new UserProfile();
         userProfile.setEmail(user.getEmail());
         userProfile.setUsername(user.getUsername());
-        userProfile.setFollowers(user.getFollower());
-        userProfile.setTweets(user.getTweets());
+        userProfile.setFollowers(user.getFollower().stream().map(User::getId).collect(Collectors.toList()));
+        userProfile.setTweets(user.getTweets().stream().map(Tweet::getId).collect(Collectors.toList()));
         return userProfile;
     }
 }
