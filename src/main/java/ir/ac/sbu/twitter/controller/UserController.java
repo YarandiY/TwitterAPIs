@@ -1,7 +1,8 @@
 package ir.ac.sbu.twitter.controller;
 
-import ir.ac.sbu.twitter.UserDTO.UserCreate;
-import ir.ac.sbu.twitter.UserDTO.UserProfile;
+import ir.ac.sbu.twitter.dto.TweetDto;
+import ir.ac.sbu.twitter.dto.UserCreate;
+import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.DuplicateInputError;
 import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.User;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
@@ -28,13 +31,54 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/get/{id}")
-    public ResponseEntity<UserProfile> get(@PathVariable long id) {
+    @GetMapping(value = "/{id}/get")
+    public ResponseEntity<UserDto> get(@PathVariable long id) {
         try {
-            UserProfile user = userService.getProfile(id);
+            UserDto user = userService.getDto(id);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping(value = "/{id}/followers")
+    public ResponseEntity<List<String>> getFollowers(@PathVariable long id) {
+        try {
+            List<String> followers = userService.getFollowers(id);
+            return new ResponseEntity<>(followers, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(value = "/{id}/followings")
+    public ResponseEntity<List<String>> getFollowings(@PathVariable long id) {
+        try {
+            List<String> followers = userService.getFollowings(id);
+            return new ResponseEntity<>(followers, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(value = "/{id}/tweets")
+    public ResponseEntity<List<TweetDto>> getTweets(@PathVariable long id) {
+        try {
+            List<TweetDto> followers = userService.getTweets(id);
+            return new ResponseEntity<>(followers, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(value = "/{id}/liked")
+    public ResponseEntity<List<TweetDto>> getLiked(@PathVariable long id) {
+        try {
+            List<TweetDto> followers = userService.likedTweets(id);
+            return new ResponseEntity<>(followers, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

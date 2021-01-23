@@ -1,4 +1,4 @@
-package ir.ac.sbu.twitter.UserDTO;
+package ir.ac.sbu.twitter.dto;
 
 import lombok.Data;
 
