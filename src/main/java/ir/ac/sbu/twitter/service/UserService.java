@@ -1,13 +1,16 @@
 package ir.ac.sbu.twitter.service;
 
 import ir.ac.sbu.twitter.UserDTO.UserCreate;
+import ir.ac.sbu.twitter.UserDTO.UserProfile;
 import ir.ac.sbu.twitter.exception.DuplicateInputError;
+import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -27,5 +30,18 @@ public class UserService {
         user.setFollower(new ArrayList<>());
         user.setTweets(new ArrayList<>());
         return userRepository.save(user);
+    }
+
+    public UserProfile getProfile(long id) throws InvalidInput {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isEmpty())
+            throw new InvalidInput();
+        User user = optionalUser.get();
+        UserProfile userProfile = new UserProfile();
+        userProfile.setEmail(user.getEmail());
+        userProfile.setUsername(user.getUsername());
+        userProfile.setFollowers(user.getFollower());
+        userProfile.setTweets(user.getTweets());
+        return userProfile;
     }
 }
