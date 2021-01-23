@@ -1,7 +1,8 @@
 package ir.ac.sbu.twitter.service;
 
-import ir.ac.sbu.twitter.UserDTO.UserCreate;
-import ir.ac.sbu.twitter.UserDTO.UserProfile;
+import ir.ac.sbu.twitter.dto.TweetDto;
+import ir.ac.sbu.twitter.dto.UserCreate;
+import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.DuplicateInputError;
 import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.Tweet;
@@ -10,8 +11,7 @@ import ir.ac.sbu.twitter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,6 +19,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TweetService tweetService;
 
     public User create(UserCreate userCreate) throws DuplicateInputError {
         if(userRepository.findByEmail(userCreate.getEmail()).isPresent())
@@ -34,16 +37,58 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserProfile getProfile(long id) throws InvalidInput {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if(optionalUser.isEmpty())
-            throw new InvalidInput();
-        User user = optionalUser.get();
-        UserProfile userProfile = new UserProfile();
-        userProfile.setEmail(user.getEmail());
-        userProfile.setUsername(user.getUsername());
-        userProfile.setFollowers(user.getFollower().stream().map(User::getId).collect(Collectors.toList()));
-        userProfile.setTweets(user.getTweets().stream().map(Tweet::getId).collect(Collectors.toList()));
-        return userProfile;
+    public List<String> getFollowers(long userId) throws InvalidInput {
+        User user = get(userId);
+        return user.getFollower().stream()
+                .map(User::getUsername)
+                .collect(Collectors.toList());
     }
+
+    public List<String> getFollowings(long userId) throws InvalidInput {
+        User user = get(userId);
+        return userRepository.getAllByFollowerContains(user)
+                .stream().map(User::getUsername)
+                .collect(Collectors.toList());
+    }
+
+    public User get(long userId) throws InvalidInput {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(!optionalUser.isPresent())
+            throw new InvalidInput();
+        return optionalUser.get();
+    }
+
+    public List<TweetDto> getTweets(long userId) throws InvalidInput {
+        User user = get(userId);
+        return user.getTweets().stream().map(t -> {
+            try {
+                return t.getDto(getDto(t.getAuthorId()));
+            } catch (InvalidInput invalidInput) {
+                System.out.println("something went wrong!");
+                return null;
+            }
+        }).collect(Collectors.toList());
+    }
+
+    public UserDto getDto(long userId) throws InvalidInput {
+        User user = get(userId);
+        UserDto userDto = new UserDto();
+        userDto.setUsername(user.getUsername());
+        return userDto;
+    }
+
+    public List<TweetDto> likedTweets(long userId) throws InvalidInput {
+        User user = get(userId);
+        return tweetService.getLiked(user)
+                .stream().map(t -> {
+                    try {
+                        return t.getDto(getDto(t.getAuthorId()));
+                    } catch (InvalidInput invalidInput) {
+                        System.out.println("something went wrong!");
+                        return null;
+                    }
+                }).collect(Collectors.toList());
+    }
+
+
 }
