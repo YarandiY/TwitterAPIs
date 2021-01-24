@@ -24,7 +24,7 @@ public class TweetService {
     public Tweet get(long tweetId) throws InvalidInput {
         Optional<Tweet> optionalTweet = tweetRepository.findById(tweetId);
         if(!optionalTweet.isPresent())
-            throw new InvalidInput();
+            throw new InvalidInput("the id doesnt exist");
         return optionalTweet.get();
     }
 

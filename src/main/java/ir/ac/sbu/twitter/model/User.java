@@ -2,16 +2,21 @@ package ir.ac.sbu.twitter.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name="USERS")
 @EqualsAndHashCode(of = "id")
-public class User  implements Serializable {
+public class User  implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -34,4 +39,28 @@ public class User  implements Serializable {
     @JoinTable(name = "USERS_USERS", joinColumns = @JoinColumn(name = "USER_ID1", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "USER_ID2", referencedColumnName = "ID"))
     @OrderBy
     private List<User> follower;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+        @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

@@ -1,8 +1,6 @@
 package ir.ac.sbu.twitter.controller;
 
-import ir.ac.sbu.twitter.dto.TweetDto;
-import ir.ac.sbu.twitter.dto.UserCreate;
-import ir.ac.sbu.twitter.dto.UserDto;
+import ir.ac.sbu.twitter.dto.*;
 import ir.ac.sbu.twitter.exception.DuplicateInputError;
 import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.User;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/users")
 public class UserController {
 
@@ -29,6 +28,12 @@ public class UserController {
         } catch (DuplicateInputError duplicateInputError) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping(value = "/login")
+    private ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest loginRequest){
+        JwtAuthenticationResponse token = userService.login(loginRequest);
+        return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/get")
