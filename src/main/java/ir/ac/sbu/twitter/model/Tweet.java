@@ -5,16 +5,18 @@ import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.InvalidInput;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 
 @Data
 @Entity
-@Table(name="TWEETS")
-@EqualsAndHashCode(of = "id")
+@Table(name="TWEETS2")
+@EqualsAndHashCode(of = "ID")
 public class Tweet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,14 +33,17 @@ public class Tweet {
     private List<String> hashtags;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "TWEETS_USERS", joinColumns = @JoinColumn(name = "TWEET_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"))
-    @OrderBy
+    @JoinTable(name = "TWEETS_USERS2",
+            joinColumns = @JoinColumn(name = "TWEETS_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "USERS_ID", referencedColumnName = "ID"))
     private List<User> liked;
 
     public TweetDto getDto(UserDto author){
         TweetDto dto = new TweetDto();
         dto.setAuthor(author);
         dto.setBody(body);
+            if(liked == null)
+                liked = new ArrayList<>();
         dto.setLikes(liked.size());
         return dto;
     }

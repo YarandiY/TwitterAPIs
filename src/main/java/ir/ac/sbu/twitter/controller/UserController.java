@@ -7,6 +7,7 @@ import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.DuplicateInputError;
 import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.User;
+import ir.ac.sbu.twitter.security.UserDetailsServiceImpl;
 import ir.ac.sbu.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
     @PostMapping(value = "/signup", consumes = "application/json")
     public ResponseEntity<Long> create(@RequestBody UserCreate user) {
@@ -47,6 +51,12 @@ public class UserController {
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
+    }
+    @GetMapping(value = "/me")
+    public ResponseEntity<UserDto> get() {
+        UserDto userDto = new UserDto();
+        userDto.setUsername(userDetailsService.getUser().getUsername());
+        return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/followers")
