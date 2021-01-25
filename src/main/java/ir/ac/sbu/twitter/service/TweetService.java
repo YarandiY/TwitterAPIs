@@ -241,10 +241,9 @@ public class TweetService {
                         if(ll.getFollowingId() != -1)
                             dto.setFollowing(userService.getDto(ll.getFollowingId()));
                         dto.setDoer(userService.getDto(ll.getUserId()));
-                        if(ll.getTweetId() != -1){
+                        dto.setTweetId(ll.getTweetId());
+                        if(ll.getTweetId() != -1)
                             dto.setTweetBody(get(ll.getTweetId()).getBody());
-                            dto.setTweetId(ll.getTweetId());
-                        }
                     } catch (InvalidInput invalidInput) {
                         logger.error("token is invalid!");
                     }
