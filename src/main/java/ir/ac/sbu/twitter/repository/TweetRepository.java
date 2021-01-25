@@ -1,5 +1,6 @@
 package ir.ac.sbu.twitter.repository;
 
+import ir.ac.sbu.twitter.model.Hashtag;
 import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,5 +13,6 @@ public interface TweetRepository extends JpaRepository<Tweet, Long> {
 
     Optional<Tweet> findById(Long id);
     List<Tweet> getAllByLikedContaining(User user);
+    List<Tweet> findAllByBodyContaining(String body);
     Tweet save(Tweet s);
 }

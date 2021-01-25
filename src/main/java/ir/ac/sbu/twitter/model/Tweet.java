@@ -15,7 +15,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name="TWEETS2")
+@Table(name="TWEETS7")
 @EqualsAndHashCode(of = "ID")
 public class Tweet {
     @Id
@@ -29,17 +29,21 @@ public class Tweet {
     private Date date;
     @Column(name = "AUTHOR")
     private Long authorId;
-    @ElementCollection
-    private List<String> hashtags;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "TWEETS_USERS_LIKE",
+    @JoinTable(name = "TWEETS_HASHTAGS7",
+            joinColumns = @JoinColumn(name = "TWEETS_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "HASHTAGS_ID", referencedColumnName = "ID"))
+    private List<Hashtag> hashtags;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "TWEETS_USERS_LIKE7",
             joinColumns = @JoinColumn(name = "TWEETS_ID", referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "USERS_ID", referencedColumnName = "ID"))
     private List<User> liked;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "TWEETS_USERS_RET",
+    @JoinTable(name = "TWEETS_USERS_RET7",
             joinColumns = @JoinColumn(name = "TWEETS_ID", referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "USERS_ID", referencedColumnName = "ID"))
     private List<User> retweets;

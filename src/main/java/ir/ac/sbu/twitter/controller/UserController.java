@@ -62,7 +62,6 @@ public class UserController {
 
     @PostMapping(value = "/follow")
     public ResponseEntity<Boolean> follow(@RequestBody FollowRequest request){
-        System.err.println(request.getUsername());
         try {
             userService.follow(request.getUsername());
             return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);

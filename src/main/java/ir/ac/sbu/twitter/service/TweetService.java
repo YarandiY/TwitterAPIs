@@ -4,8 +4,10 @@ import ir.ac.sbu.twitter.dto.TweetCreate;
 import ir.ac.sbu.twitter.dto.TweetDto;
 import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.InvalidInput;
+import ir.ac.sbu.twitter.model.Hashtag;
 import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.model.User;
+import ir.ac.sbu.twitter.repository.HashtagRepository;
 import ir.ac.sbu.twitter.repository.TweetRepository;
 import ir.ac.sbu.twitter.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class TweetService {
@@ -31,6 +34,9 @@ public class TweetService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private HashtagRepository hashtagRepository;
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -65,17 +71,30 @@ public class TweetService {
         return tweetDto;
     }
 
-    public List<String> findHashtags(String doc){
-        return List.of(doc.split(" "))
-                .stream().filter(w -> w.startsWith("#"))
-                .collect(Collectors.toList());
+    public List<Hashtag> findHashtags(String doc){
+        List<String> stream = List.of(doc.split(" "))
+                .stream().filter(w -> w.contains("#"))
+                .map(w -> w.substring(w.indexOf("#"))).collect(Collectors.toList());
+        List<Hashtag> result = new ArrayList<>();
+        for (String str :
+                stream) {
+            Hashtag hashtag = new Hashtag();
+            hashtag.setBody(str);
+            Optional<Hashtag> optionalHashtag = hashtagRepository.findByBody(str);
+            if(!optionalHashtag.isPresent())
+                hashtag = hashtagRepository.save(hashtag);
+            else
+                hashtag = optionalHashtag.get();
+            result.add(hashtag);
+        }
+        return result;
     }
 
     public boolean delete(long tweetId) throws InvalidInput {
         Tweet tweet = get(tweetId);
         if(!checkAccess(tweet))
             return false;
-        List<User> users = userRepository.findAll();
+        List<User> users = userRepository.findAllByTweetsContaining(tweet);
         for (User u :
                 users) {
             List<Tweet> t = u.getTweets();
@@ -134,5 +153,38 @@ public class TweetService {
         user.setTweets(tweets);
         userRepository.save(user);
         return true;
+    }
+
+    public List<TweetDto> searchByHashtags(String hashtag) throws InvalidInput {
+        User user = userService.findUser();
+        Hashtag ht = new Hashtag();
+        ht.setBody(hashtag);
+        return tweetRepository.findAll()
+                .stream().filter(t -> t.getHashtags().contains(ht))
+                .map(t -> {
+                    try {
+                        boolean isLiked = t.getLiked().contains(user);
+                        boolean isRetweeted = t.getRetweets().contains(user);
+                        return t.getDto(userService.getDto(t.getAuthorId()), isLiked, isRetweeted);
+                    } catch (InvalidInput invalidInput) {
+                        logger.error("something went wrong!");
+                        return null;
+                    }
+                }).collect(Collectors.toList());
+    }
+
+    public List<TweetDto> searchBody(String input) throws InvalidInput {
+        User user = userService.findUser();
+        return tweetRepository.findAllByBodyContaining(input).stream()
+                .map(t -> {
+                    try {
+                        boolean isLiked = t.getLiked().contains(user);
+                        boolean isRetweeted = t.getRetweets().contains(user);
+                        return t.getDto(userService.getDto(t.getAuthorId()), isLiked, isRetweeted);
+                    } catch (InvalidInput invalidInput) {
+                        logger.error("something went wrong!");
+                        return null;
+                    }
+                }).collect(Collectors.toList());
     }
 }

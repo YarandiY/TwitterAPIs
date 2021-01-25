@@ -14,7 +14,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name="USERS3")
+@Table(name="USERS7")
 public class User  implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class User  implements Serializable, UserDetails {
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "USERS_TWEETS3",
+    @JoinTable(name = "USERS_TWEETS7",
             joinColumns = @JoinColumn(name = "USERS_ID", referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "TWEETS_ID", referencedColumnName = "ID"))
     @OrderBy
@@ -37,7 +37,7 @@ public class User  implements Serializable, UserDetails {
 
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "USERS_USERS3", joinColumns = @JoinColumn(name = "USER_ID1", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "USER_ID2", referencedColumnName = "ID"))
+    @JoinTable(name = "USERS_USERS7", joinColumns = @JoinColumn(name = "USER_ID1", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "USER_ID2", referencedColumnName = "ID"))
     @OrderBy
     private List<User> followings;
 

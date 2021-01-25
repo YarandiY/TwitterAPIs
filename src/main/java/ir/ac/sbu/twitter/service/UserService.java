@@ -121,7 +121,7 @@ public class UserService {
                 boolean isRetweeted = t.getRetweets().contains(user);
                 return t.getDto(getDto(t.getAuthorId()), isLiked, isRetweeted);
             } catch (InvalidInput invalidInput) {
-                System.out.println("something went wrong!");
+                logger.error("something went wrong!");
                 return null;
             }
         }).collect(Collectors.toList());
@@ -143,7 +143,7 @@ public class UserService {
                         boolean isRetweeted = t.getRetweets().contains(user);
                         return t.getDto(getDto(t.getAuthorId()), isLiked, isRetweeted);
                     } catch (InvalidInput invalidInput) {
-                        System.out.println("something went wrong!");
+                        logger.error("something went wrong!");
                         return null;
                     }
                 }).collect(Collectors.toList());
@@ -162,12 +162,24 @@ public class UserService {
                         boolean isRetweeted = t.getRetweets().contains(user);
                         return t.getDto(getDto(t.getAuthorId()), isLiked, isRetweeted);
                     } catch (InvalidInput invalidInput) {
-                        System.out.println("something went wrong!");
+                        logger.error("something went wrong!");
                         return null;
                     }
                 })
                 .collect(Collectors.toSet()).stream()
                 .sorted(Comparator.comparing(TweetDto::getDate).reversed())
                 .collect(Collectors.toList());
+    }
+
+    public List<UserDto> search(String username){
+        return userRepository.findAllByUsernameContaining(username)
+                .stream().map(u -> {
+                    try {
+                        return getDto(u.getId());
+                    } catch (InvalidInput invalidInput) {
+                        logger.error("something went wrong!");
+                        return null;
+                    }
+                }).collect(Collectors.toList());
     }
 }
