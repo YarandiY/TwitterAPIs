@@ -89,8 +89,10 @@ public class UserService {
         List<User> followings = follower.getFollowings();
         if (followings == null)
             followings = new ArrayList<>();
-        if(followings.contains(following))
+        if(followings.contains(following)){
+            unfollow(follower, following);
             return;
+        }
         followings.add(following);
         follower.setFollowings(followings);
         userRepository.save(follower);
@@ -99,6 +101,15 @@ public class UserService {
         followLog.setFollowingId(following.getId());
         followLog.setUserId(follower.getId());
         followLogRepository.save(followLog);
+    }
+
+    public void unfollow(User follower, User following) {
+        List<User> followings = follower.getFollowings();
+        if(!followings.contains(following))
+            return;
+        followings.remove(following);
+        follower.setFollowings(followings);
+        userRepository.save(follower);
     }
 
     public User findUser() throws InvalidInput {
