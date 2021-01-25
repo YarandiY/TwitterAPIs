@@ -7,8 +7,6 @@ import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.repository.TweetRepository;
-import ir.ac.sbu.twitter.repository.UserRepository;
-import ir.ac.sbu.twitter.security.UserDetailsServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +25,8 @@ public class TweetService {
     private TweetRepository tweetRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
     private static final Logger logger = LogManager.getLogger();
 
     public List<Tweet> getLiked(User user){
@@ -45,9 +41,7 @@ public class TweetService {
     }
 
     public TweetDto add(TweetCreate tweetCreate){
-        User author = userRepository.findByUsername(userDetailsService.getUser().getUsername()).orElseThrow(
-                () -> new RuntimeException("the token is expired")
-        );
+        User author = userService.findUser();
         UserDto authorDto = new UserDto();
         authorDto.setUsername(author.getUsername());
         Tweet tweet = new Tweet();
