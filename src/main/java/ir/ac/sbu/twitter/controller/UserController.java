@@ -40,7 +40,7 @@ public class UserController {
     @PostMapping(value = "/login")
     private ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest loginRequest){
         JwtAuthenticationResponse token = userService.login(loginRequest);
-        return new ResponseEntity<>(token, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/get")
