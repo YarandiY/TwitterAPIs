@@ -58,4 +58,11 @@ public class Tweet {
         dto.setRetweet(retweets.size());
         return dto;
     }
+
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof Tweet)
+            return ((Tweet)o).getId().equals(this.id);
+        return false;
+    }
 }

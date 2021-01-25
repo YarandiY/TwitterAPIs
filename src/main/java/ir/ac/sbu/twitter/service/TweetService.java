@@ -1,6 +1,5 @@
 package ir.ac.sbu.twitter.service;
 
-import io.swagger.models.auth.In;
 import ir.ac.sbu.twitter.dto.TweetCreate;
 import ir.ac.sbu.twitter.dto.TweetDto;
 import ir.ac.sbu.twitter.dto.UserDto;
@@ -76,12 +75,14 @@ public class TweetService {
         Tweet tweet = get(tweetId);
         if(!checkAccess(tweet))
             return false;
-        userRepository.findAllByTweetsContaining(tweet).forEach(u -> {
+        List<User> users = userRepository.findAll();
+        for (User u :
+                users) {
             List<Tweet> t = u.getTweets();
-            t.remove(tweet);
+            while (t.contains(tweet)) t.remove(tweet);
             u.setTweets(t);
             userRepository.save(u);
-        });
+        }
         tweetRepository.delete(tweet);
         return true;
     }
@@ -114,16 +115,24 @@ public class TweetService {
         User user = userService.findUser();
         Tweet tweet = get(tweetId);
         List<User> rts = tweet.getRetweets();
+        List<Tweet> tweets = user.getTweets();
         if(rts == null){
             rts = new ArrayList<>();
             rts.add(user);
+            tweets.add(tweet);
         }
-        else if(rts.contains(user))
+        else if(rts.contains(user)){
             rts.remove(user);
-        else
+            tweets.remove(tweet);
+        }
+        else{
             rts.add(user);
+            tweets.add(tweet);
+        }
         tweet.setRetweets(rts);
         tweetRepository.save(tweet);
+        user.setTweets(tweets);
+        userRepository.save(user);
         return true;
     }
 }

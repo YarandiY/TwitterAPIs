@@ -64,4 +64,11 @@ public class User  implements Serializable, UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof User)
+            return ((User)o).getId().equals(this.id);
+        return false;
+    }
 }

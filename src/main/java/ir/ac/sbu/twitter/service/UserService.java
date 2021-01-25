@@ -159,7 +159,9 @@ public class UserService {
                         System.out.println("something went wrong!");
                         return null;
                     }
-                }).sorted(Comparator.comparing(TweetDto::getDate).reversed())
+                })
+                .collect(Collectors.toSet()).stream()
+                .sorted(Comparator.comparing(TweetDto::getDate).reversed())
                 .collect(Collectors.toList());
     }
 }
