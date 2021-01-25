@@ -16,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -170,7 +167,9 @@ public class TweetService {
                         logger.error("something went wrong!");
                         return null;
                     }
-                }).collect(Collectors.toList());
+                })
+                .sorted(Comparator.comparing(TweetDto::getDate).reversed())
+                .collect(Collectors.toList());
     }
 
     public List<TweetDto> searchBody(String input) throws InvalidInput {
@@ -185,6 +184,8 @@ public class TweetService {
                         logger.error("something went wrong!");
                         return null;
                     }
-                }).collect(Collectors.toList());
+                })
+                .sorted(Comparator.comparing(TweetDto::getDate).reversed())
+                .collect(Collectors.toList());
     }
 }
