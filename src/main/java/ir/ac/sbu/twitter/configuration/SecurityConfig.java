@@ -99,7 +99,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/search","/users/followers/*",
                         "/users/followings/*",
                         "/users/liked/*",
-                        "/users/tweets/*")
+                        "/users/tweets/*",
+                        "/tweets/get/*",
+                        "/tweets/getLikes/*",
+                        "/tweets/getRetweets/*"
+                )
                 .permitAll()
                 .antMatchers(SWAGGER_LIST)
                 .permitAll()

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class TweetService {
@@ -51,6 +50,17 @@ public class TweetService {
         if(!optionalTweet.isPresent())
             throw new InvalidInput("the id doesnt exist");
         return optionalTweet.get();
+    }
+
+    public TweetDto getDto(long id) throws InvalidInput {
+        User user = userDetailsService.getUser();
+        Tweet t = get(id);
+        boolean isLiked = user !=null && t.getLiked().contains(user);
+        boolean isRetweeted = user !=null && t.getRetweets().contains(user);
+        return t.getDto(userService
+                .getDto(t.getAuthorId()),
+                isLiked,
+                isRetweeted);
     }
 
     public TweetDto add(TweetCreate tweetCreate) throws InvalidInput {
@@ -259,6 +269,22 @@ public class TweetService {
                 .sorted(Comparator.comparing(LogDto::getDate).reversed())
                 .collect(Collectors.toList())
         );
+        return result;
+    }
+
+    public List<UserDto> getLikes(long id) throws InvalidInput {
+        Tweet tweet = get(id);
+        List<UserDto> result = tweet.getLiked().stream()
+                .map(u -> userService.getDto(u))
+                .collect(Collectors.toList());
+        return result;
+    }
+
+    public List<UserDto> getRetweets(long id) throws InvalidInput {
+        Tweet tweet = get(id);
+        List<UserDto> result = tweet.getRetweets().stream()
+                .map(u -> userService.getDto(u))
+                .collect(Collectors.toList());
         return result;
     }
 }

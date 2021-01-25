@@ -2,15 +2,15 @@ package ir.ac.sbu.twitter.controller;
 
 import ir.ac.sbu.twitter.dto.TweetCreate;
 import ir.ac.sbu.twitter.dto.TweetDto;
-import ir.ac.sbu.twitter.dto.UserCreate;
-import ir.ac.sbu.twitter.exception.DuplicateInputError;
+import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.InvalidInput;
-import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.service.TweetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -57,6 +57,36 @@ public class TweetController {
             return new ResponseEntity<>(result, HttpStatus.OK);
         }catch (InvalidInput invalidInput){
             return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping(value = "/get/{id}")
+    public ResponseEntity<TweetDto> get(@PathVariable long id){
+        try {
+            TweetDto dto = tweetService.getDto(id);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(value = "/getLikes/{id}")
+    public ResponseEntity<List<UserDto>> getLikes(@PathVariable long id){
+        try {
+            List<UserDto> dto = tweetService.getLikes(id);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(value = "/getRetweets/{id}")
+    public ResponseEntity<List<UserDto>> getRetweets(@PathVariable long id){
+        try {
+            List<UserDto> dto = tweetService.getRetweets(id);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 }

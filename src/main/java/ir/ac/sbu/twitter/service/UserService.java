@@ -161,6 +161,10 @@ public class UserService {
 
     public UserDto getDto(long userId) throws InvalidInput {
         User user = get(userId);
+        return getDto(user);
+    }
+
+    public UserDto getDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setUsername(user.getUsername());
         return userDto;
@@ -208,13 +212,6 @@ public class UserService {
 
     public List<UserDto> search(String username) {
         return userRepository.findAllByUsernameContaining(username)
-                .stream().map(u -> {
-                    try {
-                        return getDto(u.getId());
-                    } catch (InvalidInput invalidInput) {
-                        logger.error("something went wrong!");
-                        return null;
-                    }
-                }).collect(Collectors.toList());
+                .stream().map(u -> getDto(u)).collect(Collectors.toList());
     }
 }
