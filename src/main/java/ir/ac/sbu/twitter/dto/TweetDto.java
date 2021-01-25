@@ -14,4 +14,5 @@ public class TweetDto {
     private Date date;
     private boolean isLiked;
     private boolean isRetweeted;
+    private String picture;
 }

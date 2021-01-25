@@ -8,11 +8,13 @@ import ir.ac.sbu.twitter.exception.DuplicateInputError;
 import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.security.UserDetailsServiceImpl;
+import ir.ac.sbu.twitter.service.PictureService;
 import ir.ac.sbu.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -26,6 +28,9 @@ public class UserController {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    private PictureService pictureService;
 
     @PostMapping(value = "/signup", consumes = "application/json")
     public ResponseEntity<Long> create(@RequestBody UserCreate user) {
@@ -55,8 +60,7 @@ public class UserController {
 
     @GetMapping(value = "/me")
     public ResponseEntity<UserDto> get() {
-        UserDto userDto = new UserDto();
-        userDto.setUsername(userDetailsService.getUser().getUsername());
+        UserDto userDto = userService.getDto(userDetailsService.getUser());
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
@@ -105,6 +109,16 @@ public class UserController {
         try {
             List<TweetDto> followers = userService.likedTweets(username);
             return new ResponseEntity<>(followers, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/set/picture")
+    public ResponseEntity<UserDto> setUserPicture(@RequestPart MultipartFile picture) {
+        try {
+            UserDto user = pictureService.setProfilePicture(picture);
+            return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }

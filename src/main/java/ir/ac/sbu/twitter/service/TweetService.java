@@ -65,8 +65,7 @@ public class TweetService {
 
     public TweetDto add(TweetCreate tweetCreate) throws InvalidInput {
         User author = userService.findUser();
-        UserDto authorDto = new UserDto();
-        authorDto.setUsername(author.getUsername());
+        UserDto authorDto = userService.getDto(author);
         Tweet tweet = new Tweet();
         tweet.setBody(tweetCreate.getBody());
         tweet.setHashtags(findHashtags(tweetCreate.getBody()));

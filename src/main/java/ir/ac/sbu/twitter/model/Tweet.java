@@ -25,6 +25,8 @@ public class Tweet {
 
     @Column(name = "BODY")
     private String body;
+    @Column(name = "PIC")
+    private String picture;
     @Column(name = "DATE")
     private Date date;
     @Column(name = "AUTHOR")

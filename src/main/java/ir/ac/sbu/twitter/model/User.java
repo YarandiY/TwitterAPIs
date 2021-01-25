@@ -26,6 +26,8 @@ public class User  implements Serializable, UserDetails {
     private String email;
     @Column(name = "PASSWORD")
     private String password;
+    @Column(name = "PIC")
+    private String picture;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "USERS_TWEETS7",

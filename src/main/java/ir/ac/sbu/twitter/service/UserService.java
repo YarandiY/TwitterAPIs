@@ -167,6 +167,7 @@ public class UserService {
     public UserDto getDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setUsername(user.getUsername());
+        userDto.setPicture(user.getPicture());
         return userDto;
     }
 
