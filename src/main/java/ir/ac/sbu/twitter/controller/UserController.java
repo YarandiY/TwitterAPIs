@@ -70,40 +70,40 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/followers")
-    public ResponseEntity<List<String>> getFollowers() {
+    @GetMapping(value = "/followers/{username}")
+    public ResponseEntity<List<String>> getFollowers(@PathVariable String username) {
         try {
-            List<String> followers = userService.getFollowers();
+            List<String> followers = userService.getFollowers(username);
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping(value = "/followings")
-    public ResponseEntity<List<String>> getFollowings() {
+    @GetMapping(value = "/followings/{username}")
+    public ResponseEntity<List<String>> getFollowings(@PathVariable String username) {
         try {
-            List<String> followers = userService.getFollowings();
+            List<String> followers = userService.getFollowings(username);
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping(value = "/tweets")
-    public ResponseEntity<List<TweetDto>> getTweets() {
+    @GetMapping(value = "/tweets/{username}")
+    public ResponseEntity<List<TweetDto>> getTweets(@PathVariable String username) {
         try {
-            List<TweetDto> followers = userService.getTweets();
+            List<TweetDto> followers = userService.getTweets(username);
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping(value = "/liked")
-    public ResponseEntity<List<TweetDto>> getLiked() {
+    @GetMapping(value = "/liked/{username}")
+    public ResponseEntity<List<TweetDto>> getLiked(@PathVariable String username) {
         try {
-            List<TweetDto> followers = userService.likedTweets();
+            List<TweetDto> followers = userService.likedTweets(username);
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);

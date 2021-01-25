@@ -94,7 +94,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.png"
                        )
                 .permitAll()
-                .antMatchers("/users/signup", "/users/login", "/users/{id}/get")
+                .antMatchers("/users/signup",
+                        "/users/login", "/users/{id}/get",
+                        "/search","/users/followers/*",
+                        "/users/followings/*",
+                        "/users/liked/*",
+                        "/users/tweets/*")
                 .permitAll()
                 .antMatchers(SWAGGER_LIST)
                 .permitAll()

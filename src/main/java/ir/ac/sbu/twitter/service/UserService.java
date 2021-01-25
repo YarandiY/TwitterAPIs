@@ -50,9 +50,9 @@ public class UserService {
     }
 
     public User create(UserCreate userCreate) throws DuplicateInputError {
-        if(userRepository.findByEmail(userCreate.getEmail()).isPresent())
+        if (userRepository.findByEmail(userCreate.getEmail()).isPresent())
             throw new DuplicateInputError();
-        if(userRepository.findByUsername(userCreate.getUsername()).isPresent())
+        if (userRepository.findByUsername(userCreate.getUsername()).isPresent())
             throw new DuplicateInputError();
         User user = new User();
         user.setEmail(userCreate.getEmail());
@@ -72,35 +72,39 @@ public class UserService {
         String jwt = tokenProvider.generateToken(authentication);
         User user = (User) authentication.getPrincipal();
         logger.info("User with [username: {}] has logged in", user.getUsername());
-        return new JwtAuthenticationResponse("Bearer "+jwt);
+        return new JwtAuthenticationResponse("Bearer " + jwt);
     }
 
-    public void follow(String username) throws InvalidInput{
+    public void follow(String username) throws InvalidInput {
         User following = userRepository.findByUsername(username).orElseThrow(
                 () -> new InvalidInput("the username doesnt exist"));
         User follower = findUser();
         List<User> followings = follower.getFollowings();
-        if(followings == null)
+        if (followings == null)
             followings = new ArrayList<>();
         followings.add(following);
         follower.setFollowings(followings);
         userRepository.save(follower);
     }
 
-    public User findUser() throws InvalidInput{
+    public User findUser() throws InvalidInput {
         return userRepository.findByUsername(userDetailsService.getUser().getUsername()).orElseThrow(
-                () -> new RuntimeException("the token is expired"));
+                () -> new InvalidInput("the token is expired"));
     }
 
-    public List<String> getFollowings() throws InvalidInput {
-        User user = findUser();
+    public List<String> getFollowings(String username) throws InvalidInput {
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new InvalidInput("the username doesnt exist")
+        );
         return user.getFollowings().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toList());
     }
 
-    public List<String> getFollowers() throws InvalidInput {
-        User user = findUser();
+    public List<String> getFollowers(String username) throws InvalidInput {
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new InvalidInput("the username doesnt exist")
+        );
         return userRepository.findAllByFollowingsContaining(user)
                 .stream().map(User::getUsername)
                 .collect(Collectors.toList());
@@ -108,17 +112,20 @@ public class UserService {
 
     public User get(long userId) throws InvalidInput {
         Optional<User> optionalUser = userRepository.findById(userId);
-        if(!optionalUser.isPresent())
+        if (!optionalUser.isPresent())
             throw new InvalidInput("the id doesnt exist");
         return optionalUser.get();
     }
 
-    public List<TweetDto> getTweets() throws InvalidInput {
-        User user = findUser();
+    public List<TweetDto> getTweets(String username) throws InvalidInput {
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new InvalidInput("the username doesnt exist")
+        );
+        User viewer = userDetailsService.getUser();
         return user.getTweets().stream().map(t -> {
             try {
-                boolean isLiked = t.getLiked().contains(user);
-                boolean isRetweeted = t.getRetweets().contains(user);
+                boolean isLiked = viewer != null && t.getLiked().contains(viewer);
+                boolean isRetweeted = viewer != null && t.getRetweets().contains(viewer);
                 return t.getDto(getDto(t.getAuthorId()), isLiked, isRetweeted);
             } catch (InvalidInput invalidInput) {
                 logger.error("something went wrong!");
@@ -134,13 +141,16 @@ public class UserService {
         return userDto;
     }
 
-    public List<TweetDto> likedTweets() throws InvalidInput {
-        User user = findUser();
+    public List<TweetDto> likedTweets(String username) throws InvalidInput {
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new InvalidInput("the username doesnt exist")
+        );
+        User viewer = userDetailsService.getUser();
         return tweetService.getLiked(user)
                 .stream().map(t -> {
                     try {
-                        boolean isLiked = t.getLiked().contains(user);
-                        boolean isRetweeted = t.getRetweets().contains(user);
+                        boolean isLiked = viewer != null && t.getLiked().contains(viewer);
+                        boolean isRetweeted = viewer != null && t.getRetweets().contains(viewer);
                         return t.getDto(getDto(t.getAuthorId()), isLiked, isRetweeted);
                     } catch (InvalidInput invalidInput) {
                         logger.error("something went wrong!");
@@ -171,7 +181,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public List<UserDto> search(String username){
+    public List<UserDto> search(String username) {
         return userRepository.findAllByUsernameContaining(username)
                 .stream().map(u -> {
                     try {

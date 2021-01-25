@@ -10,6 +10,7 @@ import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.repository.HashtagRepository;
 import ir.ac.sbu.twitter.repository.TweetRepository;
 import ir.ac.sbu.twitter.repository.UserRepository;
+import ir.ac.sbu.twitter.security.UserDetailsServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class TweetService {
 
     @Autowired
     private HashtagRepository hashtagRepository;
+
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -152,16 +156,16 @@ public class TweetService {
         return true;
     }
 
-    public List<TweetDto> searchByHashtags(String hashtag) throws InvalidInput {
-        User user = userService.findUser();
+    public List<TweetDto> searchByHashtags(String hashtag) {
+        User user = userDetailsService.getUser();
         Hashtag ht = new Hashtag();
         ht.setBody(hashtag);
         return tweetRepository.findAll()
                 .stream().filter(t -> t.getHashtags().contains(ht))
                 .map(t -> {
                     try {
-                        boolean isLiked = t.getLiked().contains(user);
-                        boolean isRetweeted = t.getRetweets().contains(user);
+                        boolean isLiked = user !=null && t.getLiked().contains(user);
+                        boolean isRetweeted = user !=null && t.getRetweets().contains(user);
                         return t.getDto(userService.getDto(t.getAuthorId()), isLiked, isRetweeted);
                     } catch (InvalidInput invalidInput) {
                         logger.error("something went wrong!");
@@ -172,13 +176,14 @@ public class TweetService {
                 .collect(Collectors.toList());
     }
 
-    public List<TweetDto> searchBody(String input) throws InvalidInput {
-        User user = userService.findUser();
+    public List<TweetDto> searchBody(String input){ //TODO
+        User user = userDetailsService.getUser();
         return tweetRepository.findAllByBodyContaining(input).stream()
                 .map(t -> {
                     try {
-                        boolean isLiked = t.getLiked().contains(user);
-                        boolean isRetweeted = t.getRetweets().contains(user);
+                        System.out.println("**** " + user.getId());
+                        boolean isLiked = user !=null && t.getLiked().contains(user);
+                        boolean isRetweeted = user !=null && t.getRetweets().contains(user);
                         return t.getDto(userService.getDto(t.getAuthorId()), isLiked, isRetweeted);
                     } catch (InvalidInput invalidInput) {
                         logger.error("something went wrong!");

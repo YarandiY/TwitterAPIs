@@ -45,27 +45,13 @@ public class HomeController {
             return new ResponseEntity<>(
                     userService.search(words[0].substring(1))
                     ,HttpStatus.OK);
-        if (words[0].startsWith("#")) {
-            try {
+        if (words[0].startsWith("#"))
                 return new ResponseEntity<>(
                         tweetService.searchByHashtags(words[0])
                         ,HttpStatus.OK);
-            } catch (InvalidInput invalidInput) {
-                return new ResponseEntity<>(
-                        new ArrayList<>()
-                        ,HttpStatus.BAD_REQUEST);
-            }
-        }
-        else {
-            try {
+        else
                 return new ResponseEntity<>(
                         tweetService.searchBody(input)
                         ,HttpStatus.OK);
-            } catch (InvalidInput invalidInput) {
-                return new ResponseEntity<>(
-                        new ArrayList<>()
-                        ,HttpStatus.BAD_REQUEST);
-            }
-        }
     }
 }
