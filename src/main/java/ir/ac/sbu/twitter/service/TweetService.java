@@ -1,5 +1,6 @@
 package ir.ac.sbu.twitter.service;
 
+import io.swagger.models.auth.In;
 import ir.ac.sbu.twitter.dto.TweetCreate;
 import ir.ac.sbu.twitter.dto.TweetDto;
 import ir.ac.sbu.twitter.dto.UserDto;
@@ -45,7 +46,7 @@ public class TweetService {
         return optionalTweet.get();
     }
 
-    public TweetDto add(TweetCreate tweetCreate){
+    public TweetDto add(TweetCreate tweetCreate) throws InvalidInput {
         User author = userService.findUser();
         UserDto authorDto = new UserDto();
         authorDto.setUsername(author.getUsername());
@@ -71,4 +72,58 @@ public class TweetService {
                 .collect(Collectors.toList());
     }
 
+    public boolean delete(long tweetId) throws InvalidInput {
+        Tweet tweet = get(tweetId);
+        if(!checkAccess(tweet))
+            return false;
+        userRepository.findAllByTweetsContaining(tweet).forEach(u -> {
+            List<Tweet> t = u.getTweets();
+            t.remove(tweet);
+            u.setTweets(t);
+            userRepository.save(u);
+        });
+        tweetRepository.delete(tweet);
+        return true;
+    }
+
+    public boolean like(long tweetId) throws InvalidInput {
+        Tweet tweet = get(tweetId);
+        User user = userService.findUser();
+        List<User> liked = tweet.getLiked();
+        if(liked == null){
+            liked = new ArrayList<>();
+            liked.add(user);
+        }
+        else if(liked.contains(user))
+            liked.remove(user);
+        else
+            liked.add(user);
+        tweet.setLiked(liked);
+        tweetRepository.save(tweet);
+        return true;
+    }
+
+    public boolean checkAccess(Tweet tweet) throws InvalidInput {
+        User user = userService.findUser();
+        if(tweet.getAuthorId() != user.getId())
+            return false;
+        return true;
+    }
+
+    public boolean retweet(long tweetId) throws InvalidInput {
+        User user = userService.findUser();
+        Tweet tweet = get(tweetId);
+        List<User> rts = tweet.getRetweets();
+        if(rts == null){
+            rts = new ArrayList<>();
+            rts.add(user);
+        }
+        else if(rts.contains(user))
+            rts.remove(user);
+        else
+            rts.add(user);
+        tweet.setRetweets(rts);
+        tweetRepository.save(tweet);
+        return true;
+    }
 }

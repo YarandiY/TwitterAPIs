@@ -40,7 +40,7 @@ public class UserController {
     @PostMapping(value = "/login")
     private ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest loginRequest){
         JwtAuthenticationResponse token = userService.login(loginRequest);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+        return new ResponseEntity<>(token, HttpStatus.NOT_FOUND);
     }
 
     @GetMapping(value = "/{id}/get")
@@ -49,7 +49,7 @@ public class UserController {
             UserDto user = userService.getDto(id);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -67,7 +67,7 @@ public class UserController {
             userService.follow(request.getUsername());
             return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
         }catch (InvalidInput invalidInput){
-            return new ResponseEntity<>(Boolean.FALSE, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Boolean.FALSE, HttpStatus.BAD_REQUEST);
         }
     }
 

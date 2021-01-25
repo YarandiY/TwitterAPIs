@@ -24,7 +24,11 @@ public class HomeController {
 
     @GetMapping(value = "/timeline")
     public ResponseEntity<List<TweetDto>> get() {
-        List<TweetDto> tweets = userService.getTimeline();
-        return new ResponseEntity<>(tweets, HttpStatus.OK);
+        try {
+            List<TweetDto> tweets = userService.getTimeline();
+            return new ResponseEntity<>(tweets, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 }

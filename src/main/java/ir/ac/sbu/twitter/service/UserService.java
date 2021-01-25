@@ -145,7 +145,7 @@ public class UserService {
                 }).collect(Collectors.toList());
     }
 
-    public List<TweetDto> getTimeline() {
+    public List<TweetDto> getTimeline() throws InvalidInput {
         User user = findUser();
         List<Tweet> tweets = user.getTweets();
         tweets.addAll(user.getFollowings()

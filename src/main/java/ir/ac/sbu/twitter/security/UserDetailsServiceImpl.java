@@ -4,6 +4,7 @@ import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.repository.UserRepository;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,6 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Getter
     private User user;
 
+    @SneakyThrows
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) {
@@ -31,10 +33,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Transactional(readOnly = true)
-    public UserDetails loadUserById(Long id) {
+    public UserDetails loadUserById(Long id) throws InvalidInput {
         user = userRepository.findById(id).orElseThrow(
                 () -> new InvalidInput("User not found [id: " + id + "]"));
         return  user;
     }
-
 }
