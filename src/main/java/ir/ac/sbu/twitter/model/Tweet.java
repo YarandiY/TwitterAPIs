@@ -33,18 +33,29 @@ public class Tweet {
     private List<String> hashtags;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "TWEETS_USERS2",
+    @JoinTable(name = "TWEETS_USERS_LIKE",
             joinColumns = @JoinColumn(name = "TWEETS_ID", referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "USERS_ID", referencedColumnName = "ID"))
     private List<User> liked;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "TWEETS_USERS_RET",
+            joinColumns = @JoinColumn(name = "TWEETS_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "USERS_ID", referencedColumnName = "ID"))
+    private List<User> retweets;
+
     public TweetDto getDto(UserDto author){
         TweetDto dto = new TweetDto();
+        dto.setId(id);
+        dto.setDate(date);
         dto.setAuthor(author);
         dto.setBody(body);
-            if(liked == null)
-                liked = new ArrayList<>();
+        if(liked == null)
+            liked = new ArrayList<>();
         dto.setLikes(liked.size());
+        if(retweets == null)
+            retweets = new ArrayList<>();
+        dto.setRetweet(retweets.size());
         return dto;
     }
 }

@@ -39,7 +39,7 @@ public class User  implements Serializable, UserDetails {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "USERS_USERS3", joinColumns = @JoinColumn(name = "USER_ID1", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "USER_ID2", referencedColumnName = "ID"))
     @OrderBy
-    private List<User> follower;
+    private List<User> followings;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

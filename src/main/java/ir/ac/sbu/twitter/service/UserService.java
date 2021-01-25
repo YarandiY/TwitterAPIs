@@ -6,6 +6,7 @@ import ir.ac.sbu.twitter.dto.UserCreate;
 import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.DuplicateInputError;
 import ir.ac.sbu.twitter.exception.InvalidInput;
+import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.repository.UserRepository;
 import ir.ac.sbu.twitter.security.JwtTokenProvider;
@@ -78,12 +79,12 @@ public class UserService {
         User following = userRepository.findByUsername(username).orElseThrow(
                 () -> new InvalidInput("the username doesnt exist"));
         User follower = findUser();
-        List<User> followers = following.getFollower();
-        if(followers == null)
-            followers = new ArrayList<>();
-        followers.add(follower);
-        following.setFollower(followers);
-        userRepository.save(following);
+        List<User> followings = follower.getFollowings();
+        if(followings == null)
+            followings = new ArrayList<>();
+        followings.add(following);
+        follower.setFollowings(followings);
+        userRepository.save(follower);
     }
 
     public User findUser() throws InvalidInput{
@@ -91,16 +92,16 @@ public class UserService {
                 () -> new RuntimeException("the token is expired"));
     }
 
-    public List<String> getFollowers() throws InvalidInput {
+    public List<String> getFollowings() throws InvalidInput {
         User user = findUser();
-        return user.getFollower().stream()
+        return user.getFollowings().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toList());
     }
 
-    public List<String> getFollowings() throws InvalidInput {
+    public List<String> getFollowers() throws InvalidInput {
         User user = findUser();
-        return userRepository.findAllByFollowerContaining(user)
+        return userRepository.findAllByFollowingsContaining(user)
                 .stream().map(User::getUsername)
                 .collect(Collectors.toList());
     }
@@ -144,5 +145,21 @@ public class UserService {
                 }).collect(Collectors.toList());
     }
 
-
+    public List<TweetDto> getTimeline() {
+        User user = findUser();
+        List<Tweet> tweets = user.getTweets();
+        tweets.addAll(user.getFollowings()
+                .stream().map(User::getTweets)
+                .flatMap(List::stream).collect(Collectors.toList()));
+        return tweets.stream()
+                .map(t -> {
+                    try {
+                        return t.getDto(getDto(t.getAuthorId()));
+                    } catch (InvalidInput invalidInput) {
+                        System.out.println("something went wrong!");
+                        return null;
+                    }
+                }).sorted(Comparator.comparing(TweetDto::getDate).reversed())
+                .collect(Collectors.toList());
+    }
 }

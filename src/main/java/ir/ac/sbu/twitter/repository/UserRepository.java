@@ -9,7 +9,7 @@ import java.util.*;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    List<User> findAllByFollowerContaining(User u);
+    List<User> findAllByFollowingsContaining(User u);
     List<User> findAll();
     Optional<User> findById(Long id);
     Optional<User> findByUsername(String username);
