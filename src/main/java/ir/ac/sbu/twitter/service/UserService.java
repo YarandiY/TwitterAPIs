@@ -9,6 +9,7 @@ import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.repository.UserRepository;
 import ir.ac.sbu.twitter.security.JwtTokenProvider;
+import ir.ac.sbu.twitter.security.UserDetailsServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class UserService {
 
     @Autowired
     private TweetService tweetService;
+
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
@@ -72,16 +76,33 @@ public class UserService {
         return new JwtAuthenticationResponse("Bearer "+jwt);
     }
 
-    public List<String> getFollowers(long userId) throws InvalidInput {
-        User user = get(userId);
+    public void follow(String username) throws InvalidInput{
+        User following = userRepository.findByUsername(username).orElseThrow(
+                () -> new InvalidInput("the username doesnt exist"));
+        User follower = findUser();
+        List<User> followers = following.getFollower();
+        if(followers == null)
+            followers = new ArrayList<>();
+        followers.add(follower);
+        following.setFollower(followers);
+        userRepository.save(following);
+    }
+
+    public User findUser() throws InvalidInput{
+        return userRepository.findByUsername(userDetailsService.getUser().getUsername()).orElseThrow(
+                () -> new RuntimeException("the token is expired"));
+    }
+
+    public List<String> getFollowers() throws InvalidInput {
+        User user = findUser();
         return user.getFollower().stream()
                 .map(User::getUsername)
                 .collect(Collectors.toList());
     }
 
-    public List<String> getFollowings(long userId) throws InvalidInput {
-        User user = get(userId);
-        return userRepository.getAllByFollowerContains(user)
+    public List<String> getFollowings() throws InvalidInput {
+        User user = findUser();
+        return userRepository.findAllByFollowerContaining(user)
                 .stream().map(User::getUsername)
                 .collect(Collectors.toList());
     }
@@ -93,8 +114,8 @@ public class UserService {
         return optionalUser.get();
     }
 
-    public List<TweetDto> getTweets(long userId) throws InvalidInput {
-        User user = get(userId);
+    public List<TweetDto> getTweets() throws InvalidInput {
+        User user = findUser();
         return user.getTweets().stream().map(t -> {
             try {
                 return t.getDto(getDto(t.getAuthorId()));
@@ -112,8 +133,8 @@ public class UserService {
         return userDto;
     }
 
-    public List<TweetDto> likedTweets(long userId) throws InvalidInput {
-        User user = get(userId);
+    public List<TweetDto> likedTweets() throws InvalidInput {
+        User user = findUser();
         return tweetService.getLiked(user)
                 .stream().map(t -> {
                     try {

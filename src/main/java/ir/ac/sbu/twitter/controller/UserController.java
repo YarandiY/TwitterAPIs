@@ -52,6 +52,7 @@ public class UserController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
     @GetMapping(value = "/me")
     public ResponseEntity<UserDto> get() {
         UserDto userDto = new UserDto();
@@ -59,40 +60,51 @@ public class UserController {
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{id}/followers")
-    public ResponseEntity<List<String>> getFollowers(@PathVariable long id) {
+    @PostMapping(value = "/follow")
+    public ResponseEntity<Boolean> follow(@RequestBody FollowRequest request){
+        System.err.println(request.getUsername());
         try {
-            List<String> followers = userService.getFollowers(id);
+            userService.follow(request.getUsername());
+            return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
+        }catch (InvalidInput invalidInput){
+            return new ResponseEntity<>(Boolean.FALSE, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping(value = "/followers")
+    public ResponseEntity<List<String>> getFollowers() {
+        try {
+            List<String> followers = userService.getFollowers();
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping(value = "/{id}/followings")
-    public ResponseEntity<List<String>> getFollowings(@PathVariable long id) {
+    @GetMapping(value = "/followings")
+    public ResponseEntity<List<String>> getFollowings() {
         try {
-            List<String> followers = userService.getFollowings(id);
+            List<String> followers = userService.getFollowings();
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping(value = "/{id}/tweets")
-    public ResponseEntity<List<TweetDto>> getTweets(@PathVariable long id) {
+    @GetMapping(value = "/tweets")
+    public ResponseEntity<List<TweetDto>> getTweets() {
         try {
-            List<TweetDto> followers = userService.getTweets(id);
+            List<TweetDto> followers = userService.getTweets();
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping(value = "/{id}/liked")
-    public ResponseEntity<List<TweetDto>> getLiked(@PathVariable long id) {
+    @GetMapping(value = "/liked")
+    public ResponseEntity<List<TweetDto>> getLiked() {
         try {
-            List<TweetDto> followers = userService.likedTweets(id);
+            List<TweetDto> followers = userService.likedTweets();
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
