@@ -6,8 +6,10 @@ import ir.ac.sbu.twitter.dto.UserCreate;
 import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.DuplicateInputError;
 import ir.ac.sbu.twitter.exception.InvalidInput;
+import ir.ac.sbu.twitter.model.FollowLog;
 import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.model.User;
+import ir.ac.sbu.twitter.repository.FollowLogRepository;
 import ir.ac.sbu.twitter.repository.UserRepository;
 import ir.ac.sbu.twitter.security.JwtTokenProvider;
 import ir.ac.sbu.twitter.security.UserDetailsServiceImpl;
@@ -32,6 +34,9 @@ public class UserService {
 
     @Autowired
     private TweetService tweetService;
+
+    @Autowired
+    private FollowLogRepository followLogRepository;
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -79,12 +84,21 @@ public class UserService {
         User following = userRepository.findByUsername(username).orElseThrow(
                 () -> new InvalidInput("the username doesnt exist"));
         User follower = findUser();
+        if(follower.equals(following))
+            return;
         List<User> followings = follower.getFollowings();
         if (followings == null)
             followings = new ArrayList<>();
+        if(followings.contains(following))
+            return;
         followings.add(following);
         follower.setFollowings(followings);
         userRepository.save(follower);
+        FollowLog followLog = new FollowLog();
+        followLog.setDate(new Date());
+        followLog.setFollowingId(following.getId());
+        followLog.setUserId(follower.getId());
+        followLogRepository.save(followLog);
     }
 
     public User findUser() throws InvalidInput {

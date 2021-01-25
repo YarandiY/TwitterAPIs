@@ -25,6 +25,8 @@ public class TweetService {
     private LikesLogRepository likesLogRepository;
     @Autowired
     private RetweetLogRepository retweetLogRepository;
+    @Autowired
+    private FollowLogRepository followLogRepository;
 
     @Autowired
     private UserService userService;
@@ -229,6 +231,7 @@ public class TweetService {
                 followings){
             logs.addAll(likesLogRepository.findAllByUserId(u.getId()));
             logs.addAll(retweetLogRepository.findAllByUserId(u.getId()));
+            logs.addAll(followLogRepository.findAllByUserId(u.getId()));
         }
         result.addAll(logs.stream()
                 .map(ll -> {
