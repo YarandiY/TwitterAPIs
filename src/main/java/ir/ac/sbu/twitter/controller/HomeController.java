@@ -3,10 +3,7 @@ package ir.ac.sbu.twitter.controller;
 
 import ir.ac.sbu.twitter.dto.LogDto;
 import ir.ac.sbu.twitter.dto.TweetDto;
-import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.InvalidInput;
-import ir.ac.sbu.twitter.model.Log;
-import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.service.TweetService;
 import ir.ac.sbu.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
