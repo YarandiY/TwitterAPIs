@@ -7,12 +7,14 @@ import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.model.User;
 import ir.ac.sbu.twitter.repository.TweetRepository;
+import ir.ac.sbu.twitter.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,9 @@ public class TweetService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -51,6 +56,12 @@ public class TweetService {
         tweet.setAuthorId(author.getId());
         tweet = tweetRepository.save(tweet);
         TweetDto tweetDto = tweet.getDto(authorDto);
+        List<Tweet> tweets = author.getTweets();
+        if(tweets == null)
+            tweets = new ArrayList<>();
+        tweets.add(tweet);
+        author.setTweets(tweets);
+        userRepository.save(author);
         return tweetDto;
     }
 

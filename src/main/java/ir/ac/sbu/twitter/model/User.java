@@ -14,7 +14,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name="USERS")
+@Table(name="USERS3")
 public class User  implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,13 +29,15 @@ public class User  implements Serializable, UserDetails {
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "USERS_TWEETS", joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "TWEET_ID", referencedColumnName = "ID"))
+    @JoinTable(name = "USERS_TWEETS3",
+            joinColumns = @JoinColumn(name = "USERS_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "TWEETS_ID", referencedColumnName = "ID"))
     @OrderBy
     private List<Tweet> tweets;
 
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "USERS_USERS", joinColumns = @JoinColumn(name = "USER_ID1", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "USER_ID2", referencedColumnName = "ID"))
+    @JoinTable(name = "USERS_USERS3", joinColumns = @JoinColumn(name = "USER_ID1", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "USER_ID2", referencedColumnName = "ID"))
     @OrderBy
     private List<User> follower;
 

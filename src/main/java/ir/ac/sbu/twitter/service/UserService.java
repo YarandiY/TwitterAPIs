@@ -57,8 +57,6 @@ public class UserService {
         user.setEmail(userCreate.getEmail());
         user.setPassword(passwordEncoder.encode(userCreate.getPassword()));
         user.setUsername(userCreate.getUsername());
-        user.setFollower(new ArrayList<>());
-        user.setTweets(new ArrayList<>());
         return userRepository.save(user);
     }
 
