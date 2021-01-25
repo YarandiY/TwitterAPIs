@@ -1,15 +1,9 @@
 package ir.ac.sbu.twitter.service;
 
-import ir.ac.sbu.twitter.dto.TweetCreate;
-import ir.ac.sbu.twitter.dto.TweetDto;
-import ir.ac.sbu.twitter.dto.UserDto;
+import ir.ac.sbu.twitter.dto.*;
 import ir.ac.sbu.twitter.exception.InvalidInput;
-import ir.ac.sbu.twitter.model.Hashtag;
-import ir.ac.sbu.twitter.model.Tweet;
-import ir.ac.sbu.twitter.model.User;
-import ir.ac.sbu.twitter.repository.HashtagRepository;
-import ir.ac.sbu.twitter.repository.TweetRepository;
-import ir.ac.sbu.twitter.repository.UserRepository;
+import ir.ac.sbu.twitter.model.*;
+import ir.ac.sbu.twitter.repository.*;
 import ir.ac.sbu.twitter.security.UserDetailsServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +20,11 @@ public class TweetService {
 
     @Autowired
     private TweetRepository tweetRepository;
+
+    @Autowired
+    private LikesLogRepository likesLogRepository;
+    @Autowired
+    private RetweetLogRepository retweetLogRepository;
 
     @Autowired
     private UserService userService;
@@ -114,11 +113,22 @@ public class TweetService {
         if(liked == null){
             liked = new ArrayList<>();
             liked.add(user);
+            LikesLog likesLog = new LikesLog();
+            likesLog.setTweetId(tweetId);
+            likesLog.setUserId(user.getId());
+            likesLog.setDate(new Date());
+            likesLogRepository.save(likesLog);
         }
         else if(liked.contains(user))
             liked.remove(user);
-        else
+        else{
             liked.add(user);
+            LikesLog likesLog = new LikesLog();
+            likesLog.setTweetId(tweetId);
+            likesLog.setUserId(user.getId());
+            likesLog.setDate(new Date());
+            likesLogRepository.save(likesLog);
+        }
         tweet.setLiked(liked);
         tweetRepository.save(tweet);
         return true;
@@ -140,6 +150,11 @@ public class TweetService {
             rts = new ArrayList<>();
             rts.add(user);
             tweets.add(tweet);
+            RetweetLog retweetLogLog = new RetweetLog();
+            retweetLogLog.setTweetId(tweetId);
+            retweetLogLog.setUserId(user.getId());
+            retweetLogLog.setDate(new Date());
+            retweetLogRepository.save(retweetLogLog);
         }
         else if(rts.contains(user)){
             rts.remove(user);
@@ -148,6 +163,11 @@ public class TweetService {
         else{
             rts.add(user);
             tweets.add(tweet);
+            RetweetLog retweetLogLog = new RetweetLog();
+            retweetLogLog.setTweetId(tweetId);
+            retweetLogLog.setUserId(user.getId());
+            retweetLogLog.setDate(new Date());
+            retweetLogRepository.save(retweetLogLog);
         }
         tweet.setRetweets(rts);
         tweetRepository.save(tweet);
@@ -192,5 +212,49 @@ public class TweetService {
                 })
                 .sorted(Comparator.comparing(TweetDto::getDate).reversed())
                 .collect(Collectors.toList());
+    }
+
+    public List<LogDto> getLogs() throws InvalidInput {
+        User user = userService.findUser();
+        List<Tweet> tweets = user.getTweets();
+        List<User> followings = user.getFollowings();
+        List<LogDto> result = new ArrayList<>();
+        List<Log> logs = new ArrayList<>();
+        for (Tweet t :
+                tweets){
+            logs.addAll(likesLogRepository.findAllByTweetId(t.getId()));
+            logs.addAll(retweetLogRepository.findAllByTweetId(t.getId()));
+        }
+        for (User u :
+                followings){
+            logs.addAll(likesLogRepository.findAllByUserId(u.getId()));
+            logs.addAll(retweetLogRepository.findAllByUserId(u.getId()));
+        }
+        result.addAll(logs.stream()
+                .map(ll -> {
+                    LogDto dto = new LogDto();
+                    dto.setDate(ll.getDate());
+                    try {
+                        if(ll.getFollowingId() != -1)
+                            dto.setFollowing(userService.getDto(ll.getFollowingId()));
+                        dto.setDoer(userService.getDto(ll.getUserId()));
+                        if(ll.getTweetId() != -1)
+                            dto.setTweet(get(ll.getTweetId()).getBody());
+                    } catch (InvalidInput invalidInput) {
+                        logger.error("token is invalid!");
+                    }
+                    if(ll instanceof LikesLog)
+                        dto.setType(TypeLog.like);
+                    else if(ll instanceof RetweetLog)
+                        dto.setType(TypeLog.retweet);
+                    else
+                        dto.setType(TypeLog.follow);
+                    return dto;
+                })
+                .collect(Collectors.toSet()).stream()
+                .sorted(Comparator.comparing(LogDto::getDate).reversed())
+                .collect(Collectors.toList())
+        );
+        return result;
     }
 }

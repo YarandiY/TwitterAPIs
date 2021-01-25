@@ -1,9 +1,11 @@
 package ir.ac.sbu.twitter.controller;
 
 
+import ir.ac.sbu.twitter.dto.LogDto;
 import ir.ac.sbu.twitter.dto.TweetDto;
 import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.InvalidInput;
+import ir.ac.sbu.twitter.model.Log;
 import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.service.TweetService;
 import ir.ac.sbu.twitter.service.UserService;
@@ -53,5 +55,15 @@ public class HomeController {
                 return new ResponseEntity<>(
                         tweetService.searchBody(input)
                         ,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/notifications")
+    public ResponseEntity<List<LogDto>> notifications(){
+        try {
+            List<LogDto> result = tweetService.getLogs();
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 }
