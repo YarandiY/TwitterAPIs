@@ -55,7 +55,7 @@ public class TweetService {
         tweet.setDate(new Date());
         tweet.setAuthorId(author.getId());
         tweet = tweetRepository.save(tweet);
-        TweetDto tweetDto = tweet.getDto(authorDto);
+        TweetDto tweetDto = tweet.getDto(authorDto, false, false);
         List<Tweet> tweets = author.getTweets();
         if(tweets == null)
             tweets = new ArrayList<>();

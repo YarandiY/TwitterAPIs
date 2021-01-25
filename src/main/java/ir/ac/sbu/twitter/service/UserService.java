@@ -117,7 +117,9 @@ public class UserService {
         User user = findUser();
         return user.getTweets().stream().map(t -> {
             try {
-                return t.getDto(getDto(t.getAuthorId()));
+                boolean isLiked = t.getLiked().contains(user);
+                boolean isRetweeted = t.getRetweets().contains(user);
+                return t.getDto(getDto(t.getAuthorId()), isLiked, isRetweeted);
             } catch (InvalidInput invalidInput) {
                 System.out.println("something went wrong!");
                 return null;
@@ -137,7 +139,9 @@ public class UserService {
         return tweetService.getLiked(user)
                 .stream().map(t -> {
                     try {
-                        return t.getDto(getDto(t.getAuthorId()));
+                        boolean isLiked = t.getLiked().contains(user);
+                        boolean isRetweeted = t.getRetweets().contains(user);
+                        return t.getDto(getDto(t.getAuthorId()), isLiked, isRetweeted);
                     } catch (InvalidInput invalidInput) {
                         System.out.println("something went wrong!");
                         return null;
@@ -154,7 +158,9 @@ public class UserService {
         return tweets.stream()
                 .map(t -> {
                     try {
-                        return t.getDto(getDto(t.getAuthorId()));
+                        boolean isLiked = t.getLiked().contains(user);
+                        boolean isRetweeted = t.getRetweets().contains(user);
+                        return t.getDto(getDto(t.getAuthorId()), isLiked, isRetweeted);
                     } catch (InvalidInput invalidInput) {
                         System.out.println("something went wrong!");
                         return null;

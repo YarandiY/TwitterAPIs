@@ -12,4 +12,6 @@ public class TweetDto {
     private int likes;
     private int retweet;
     private Date date;
+    private boolean isLiked;
+    private boolean isRetweeted;
 }

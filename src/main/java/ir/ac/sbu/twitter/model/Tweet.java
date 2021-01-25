@@ -44,9 +44,11 @@ public class Tweet {
             inverseJoinColumns = @JoinColumn(name = "USERS_ID", referencedColumnName = "ID"))
     private List<User> retweets;
 
-    public TweetDto getDto(UserDto author){
+    public TweetDto getDto(UserDto author, boolean isLiked, boolean isRetweeted){
         TweetDto dto = new TweetDto();
         dto.setId(id);
+        dto.setLiked(isLiked);
+        dto.setRetweeted(isRetweeted);
         dto.setDate(date);
         dto.setAuthor(author);
         dto.setBody(body);
