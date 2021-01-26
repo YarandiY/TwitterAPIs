@@ -4,6 +4,7 @@ package ir.ac.sbu.twitter.controller;
 import ir.ac.sbu.twitter.dto.LogDto;
 import ir.ac.sbu.twitter.dto.TweetDto;
 import ir.ac.sbu.twitter.exception.InvalidInput;
+import ir.ac.sbu.twitter.service.PictureService;
 import ir.ac.sbu.twitter.service.TweetService;
 import ir.ac.sbu.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class HomeController {
 
     @Autowired
     private TweetService tweetService;
+
+    @Autowired
+    private PictureService pictureService;
 
     @GetMapping(value = "/timeline")
     public ResponseEntity<List<TweetDto>> get() {
@@ -73,17 +77,10 @@ public class HomeController {
         }
     }
 
-    @GetMapping("/show/pic/{path}")
+    @GetMapping(value = "/show/pic/{path}", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity show(@PathVariable String path) throws IOException {
-        path = "./usr/local/share/images/profile_images/2/" + path;
-        System.out.println(path);
-        BufferedImage bImage = ImageIO.read(new File(path));
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ImageIO.write(bImage, "jpg", bos );
-        byte [] data = bos.toByteArray();
+        byte[] data = pictureService.show(path);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + path.split("\"")[0] + "\"")
                 .contentLength(data.length)
                 .body(new ByteArrayResource(data));
     }

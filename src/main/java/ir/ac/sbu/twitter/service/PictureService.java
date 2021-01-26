@@ -17,6 +17,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,7 +27,7 @@ import java.util.Iterator;
 @Service
 public class PictureService {
 
-    private static final String IMAGE_PATH = "./usr/local/share";
+    private static final String IMAGE_PATH = "images/";
     private static final Logger logger = LogManager.getLogger();
 
     @Autowired
@@ -65,18 +66,24 @@ public class PictureService {
     public UserDto setProfilePicture(MultipartFile picture) throws InvalidInput {
         User user = userService.findUser();
         long userId = user.getId();
-        String path = IMAGE_PATH + "/images/profile_images/" + userId + "/";
-        new File(path).mkdirs();
-        String fileName = "/images/profile_images/" + userId + "/" + new Date().getTime() + ".jpg";
+        String fileName = "profile_" + userId + ".jpg";
         String pathName = IMAGE_PATH + fileName;
         try {
             save(picture, pathName);
-            user.setPicture(fileName);
+            user.setPicture("/show/pic/" + fileName);
             userRepository.save(user);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
         return userService.getDto(userId);
+    }
 
+    public byte[] show(String filename) throws IOException {
+        String path = IMAGE_PATH + filename;
+        System.err.println(path);
+        BufferedImage bImage = ImageIO.read(new File(path));
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ImageIO.write(bImage, "jpg", bos );
+        return bos.toByteArray();
     }
 }
