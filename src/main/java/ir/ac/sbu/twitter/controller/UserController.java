@@ -12,7 +12,6 @@ import ir.ac.sbu.twitter.service.PictureService;
 import ir.ac.sbu.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -120,6 +119,16 @@ public class UserController {
         try {
             UserDto user = pictureService.setProfilePicture(picture);
             return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (InvalidInput invalidInput) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping(value = "/set/username")
+    public ResponseEntity<UserDto> setUserName(@RequestBody FollowRequest request){
+        try {
+            UserDto userDto = userService.changeUsername(request.getUsername());
+            return new ResponseEntity<>(userDto, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }

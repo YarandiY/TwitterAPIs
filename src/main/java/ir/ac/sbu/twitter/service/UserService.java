@@ -54,6 +54,16 @@ public class UserService {
         this.authenticationManager = authenticationManager;
     }
 
+    public UserDto changeUsername(String username) throws InvalidInput {
+        User user = findUser();
+        boolean usernameExist = userRepository.findByUsername(username).isPresent();
+        if(usernameExist)
+            throw new InvalidInput("username exist");
+        user.setUsername(username);
+        userRepository.save(user);
+        return getDto(user);
+    }
+
     public User create(UserCreate userCreate) throws DuplicateInputError {
         if (userRepository.findByEmail(userCreate.getEmail()).isPresent())
             throw new DuplicateInputError();

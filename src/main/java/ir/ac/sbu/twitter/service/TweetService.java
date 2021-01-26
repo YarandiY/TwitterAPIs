@@ -64,6 +64,8 @@ public class TweetService {
     }
 
     public TweetDto add(String body) throws InvalidInput {
+        if(body.length() > 250)
+            throw new InvalidInput("the length of the body is too large");
         User author = userService.findUser();
         UserDto authorDto = userService.getDto(author);
         Tweet tweet = new Tweet();
