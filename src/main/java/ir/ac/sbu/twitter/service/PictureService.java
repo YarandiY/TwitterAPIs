@@ -1,8 +1,11 @@
 package ir.ac.sbu.twitter.service;
 
+import ir.ac.sbu.twitter.dto.TweetDto;
 import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.InvalidInput;
+import ir.ac.sbu.twitter.model.Tweet;
 import ir.ac.sbu.twitter.model.User;
+import ir.ac.sbu.twitter.repository.TweetRepository;
 import ir.ac.sbu.twitter.repository.UserRepository;
 import ir.ac.sbu.twitter.security.UserDetailsServiceImpl;
 import org.apache.logging.log4j.LogManager;
@@ -33,7 +36,11 @@ public class PictureService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private TweetRepository tweetRepository;
+    @Autowired
     private UserService userService;
+    @Autowired
+    private TweetService tweetService;
 
     public void save(MultipartFile pic, String path) throws IOException {
         logger.info("start to try save picture with path: " + path);
@@ -78,9 +85,23 @@ public class PictureService {
         return userService.getDto(userId);
     }
 
+    public TweetDto addPicture(TweetDto tweet, MultipartFile picture) throws InvalidInput {
+        String fileName = "tweet_" + tweet.getId() + ".jpg";
+        String pathName = IMAGE_PATH + fileName;
+        Tweet t = tweetService.get(tweet.getId());
+        try {
+            save(picture, pathName);
+            t.setPicture("/show/pic/" + fileName);
+            tweetRepository.save(t);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        tweet.setPicture(t.getPicture());
+        return tweet;
+    }
+
     public byte[] show(String filename) throws IOException {
         String path = IMAGE_PATH + filename;
-        System.err.println(path);
         BufferedImage bImage = ImageIO.read(new File(path));
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ImageIO.write(bImage, "jpg", bos );

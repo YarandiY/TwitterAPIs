@@ -12,6 +12,7 @@ import ir.ac.sbu.twitter.service.PictureService;
 import ir.ac.sbu.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -114,7 +115,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/set/picture")
+    @PostMapping(value = "/set/picture")
     public ResponseEntity<UserDto> setUserPicture(@RequestPart MultipartFile picture) {
         try {
             UserDto user = pictureService.setProfilePicture(picture);

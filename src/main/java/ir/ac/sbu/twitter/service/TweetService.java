@@ -63,12 +63,12 @@ public class TweetService {
                 isRetweeted);
     }
 
-    public TweetDto add(TweetCreate tweetCreate) throws InvalidInput {
+    public TweetDto add(String body) throws InvalidInput {
         User author = userService.findUser();
         UserDto authorDto = userService.getDto(author);
         Tweet tweet = new Tweet();
-        tweet.setBody(tweetCreate.getBody());
-        tweet.setHashtags(findHashtags(tweetCreate.getBody()));
+        tweet.setBody(body);
+        tweet.setHashtags(findHashtags(body));
         tweet.setDate(new Date());
         tweet.setAuthorId(author.getId());
         tweet = tweetRepository.save(tweet);
