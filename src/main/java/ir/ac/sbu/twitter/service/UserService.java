@@ -180,7 +180,7 @@ public class UserService {
         userDto.setPicture(user.getPicture());
         User viewer = userDetailsService.getUser();
         try {
-            userDto.setFollowed(viewer!=null && getFollowings(viewer.getUsername()).contains(user));
+            userDto.setFollowed(viewer!=null && getFollowings(viewer.getUsername()).contains(user.getUsername()));
         } catch (InvalidInput ignored) {}
         return userDto;
     }
