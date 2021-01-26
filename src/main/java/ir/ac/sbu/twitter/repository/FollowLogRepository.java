@@ -12,4 +12,5 @@ public interface FollowLogRepository extends JpaRepository<FollowLog, Long> {
 
     FollowLog save(FollowLog s);
     List<FollowLog> findAllByUserId(long userId);
+    List<FollowLog> findAllByFollowingId(long followingId);
 }

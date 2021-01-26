@@ -232,6 +232,7 @@ public class TweetService {
         List<User> followings = user.getFollowings();
         List<LogDto> result = new ArrayList<>();
         List<Log> logs = new ArrayList<>();
+        logs.addAll(followLogRepository.findAllByFollowingId(user.getId()));
         for (Tweet t :
                 tweets){
             logs.addAll(likesLogRepository.findAllByTweetId(t.getId()));
