@@ -77,8 +77,13 @@ public class UserController {
     @GetMapping(value = "/followers/{username}")
     public ResponseEntity<List<UserDto>> getFollowers(@PathVariable String username) {
         try {
-            List<UserDto> followers = userService.getFollowers(username);
-            return new ResponseEntity<>(followers, HttpStatus.OK);
+            List<Long> followers = userService.getFollowers(username);
+            List<UserDto> result = new ArrayList<>();
+            for (Long un :
+                    followers) {
+                result.add(userService.getDto(un));
+            }
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
@@ -87,8 +92,13 @@ public class UserController {
     @GetMapping(value = "/followings/{username}")
     public ResponseEntity<List<UserDto>> getFollowings(@PathVariable String username) {
         try {
-            List<UserDto> followers = userService.getFollowings(username);
-            return new ResponseEntity<>(followers, HttpStatus.OK);
+            List<Long> followings = userService.getFollowings(username);
+            List<UserDto> result = new ArrayList<>();
+            for (Long un :
+                    followings) {
+                result.add(userService.getDto(un));
+            }
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }

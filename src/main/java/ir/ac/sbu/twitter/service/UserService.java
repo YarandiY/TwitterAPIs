@@ -1,9 +1,6 @@
 package ir.ac.sbu.twitter.service;
 
 import ir.ac.sbu.twitter.dto.*;
-import ir.ac.sbu.twitter.dto.TweetDto;
-import ir.ac.sbu.twitter.dto.UserCreate;
-import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.DuplicateInputError;
 import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.model.FollowLog;
@@ -57,7 +54,7 @@ public class UserService {
     public UserDto changeUsername(String username) throws InvalidInput {
         User user = findUser();
         boolean usernameExist = userRepository.findByUsername(username).isPresent();
-        if(usernameExist)
+        if (usernameExist)
             throw new InvalidInput("username exist");
         user.setUsername(username);
         userRepository.save(user);
@@ -94,12 +91,12 @@ public class UserService {
         User following = userRepository.findByUsername(username).orElseThrow(
                 () -> new InvalidInput("the username doesnt exist"));
         User follower = findUser();
-        if(follower.equals(following))
+        if (follower.equals(following))
             return;
         List<User> followings = follower.getFollowings();
         if (followings == null)
             followings = new ArrayList<>();
-        if(followings.contains(following)){
+        if (followings.contains(following)) {
             unfollow(follower, following);
             return;
         }
@@ -115,7 +112,7 @@ public class UserService {
 
     public void unfollow(User follower, User following) {
         List<User> followings = follower.getFollowings();
-        if(!followings.contains(following))
+        if (!followings.contains(following))
             return;
         followings.remove(following);
         follower.setFollowings(followings);
@@ -127,21 +124,21 @@ public class UserService {
                 () -> new InvalidInput("the token is expired"));
     }
 
-    public List<UserDto> getFollowings(String username) throws InvalidInput {
+    public List<Long> getFollowings(String username) throws InvalidInput {
         User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new InvalidInput("the username doesnt exist")
         );
         return user.getFollowings().stream()
-                .map(u -> getDto(u))
+                .map(User::getId)
                 .collect(Collectors.toList());
     }
 
-    public List<UserDto> getFollowers(String username) throws InvalidInput {
+    public List<Long> getFollowers(String username) throws InvalidInput {
         User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new InvalidInput("the username doesnt exist")
         );
         return userRepository.findAllByFollowingsContaining(user)
-                .stream().map(u -> getDto(user))
+                .stream().map(u -> u.getId())
                 .collect(Collectors.toList());
     }
 
@@ -180,7 +177,7 @@ public class UserService {
         userDto.setPicture(user.getPicture());
         User viewer = userDetailsService.getUser();
         try {
-            userDto.setFollowed(viewer!=null && getFollowings(viewer.getUsername()).contains(user.getUsername()));
+            userDto.setFollowed(viewer!=null && getFollowings(viewer.getUsername()).contains(user.getId()));
         } catch (InvalidInput ignored) {}
         return userDto;
     }
