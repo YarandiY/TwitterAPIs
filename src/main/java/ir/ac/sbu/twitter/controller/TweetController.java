@@ -27,6 +27,7 @@ public class TweetController {
 
     @PostMapping(value = "/add")
     public ResponseEntity<TweetDto> create(@RequestPart @Nullable String body, @RequestPart @Nullable MultipartFile picture) {
+        System.out.println("test " + body);
         if(body == null && picture == null)
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         if(body == null)  body = "";
