@@ -41,8 +41,8 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-<!--			<version>42.2.18</version>-->
-			<version>42.1.4</version>
+			<version>42.2.18</version>
+<!--			<version>42.1.4</version>-->
 		</dependency>
 		<!--  https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt  -->
 		<dependency>
