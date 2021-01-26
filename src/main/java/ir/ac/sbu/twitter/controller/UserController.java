@@ -75,9 +75,9 @@ public class UserController {
     }
 
     @GetMapping(value = "/followers/{username}")
-    public ResponseEntity<List<String>> getFollowers(@PathVariable String username) {
+    public ResponseEntity<List<UserDto>> getFollowers(@PathVariable String username) {
         try {
-            List<String> followers = userService.getFollowers(username);
+            List<UserDto> followers = userService.getFollowers(username);
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -85,9 +85,9 @@ public class UserController {
     }
 
     @GetMapping(value = "/followings/{username}")
-    public ResponseEntity<List<String>> getFollowings(@PathVariable String username) {
+    public ResponseEntity<List<UserDto>> getFollowings(@PathVariable String username) {
         try {
-            List<String> followers = userService.getFollowings(username);
+            List<UserDto> followers = userService.getFollowings(username);
             return new ResponseEntity<>(followers, HttpStatus.OK);
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);

@@ -127,21 +127,21 @@ public class UserService {
                 () -> new InvalidInput("the token is expired"));
     }
 
-    public List<String> getFollowings(String username) throws InvalidInput {
+    public List<UserDto> getFollowings(String username) throws InvalidInput {
         User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new InvalidInput("the username doesnt exist")
         );
         return user.getFollowings().stream()
-                .map(User::getUsername)
+                .map(u -> getDto(u))
                 .collect(Collectors.toList());
     }
 
-    public List<String> getFollowers(String username) throws InvalidInput {
+    public List<UserDto> getFollowers(String username) throws InvalidInput {
         User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new InvalidInput("the username doesnt exist")
         );
         return userRepository.findAllByFollowingsContaining(user)
-                .stream().map(User::getUsername)
+                .stream().map(u -> getDto(user))
                 .collect(Collectors.toList());
     }
 
