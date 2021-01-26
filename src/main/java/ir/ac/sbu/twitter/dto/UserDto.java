@@ -8,4 +8,5 @@ import java.util.List;
 public class UserDto {
     private String username;
     private String picture;
+    private boolean isFollowed;
 }

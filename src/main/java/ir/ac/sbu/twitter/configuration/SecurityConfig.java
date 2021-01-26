@@ -91,10 +91,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/",
                         "/favicon.ico",
-                        "/**/*.png"
+                        "/**/*.png",
+                        "/**/*.jpg"
                        )
                 .permitAll()
-                .antMatchers("/users/signup",
+                .antMatchers(
+                        "/users/signup",
                         "/users/login", "/users/{id}/get",
                         "/search","/users/followers/*",
                         "/users/followings/*",
@@ -102,7 +104,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/users/tweets/*",
                         "/tweets/get/*",
                         "/tweets/getLikes/*",
-                        "/tweets/getRetweets/*"
+                        "/tweets/getRetweets/*", "/show/**"
                 )
                 .permitAll()
                 .antMatchers(SWAGGER_LIST)

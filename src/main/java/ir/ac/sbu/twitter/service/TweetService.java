@@ -212,7 +212,6 @@ public class TweetService {
         return tweetRepository.findAllByBodyContaining(input).stream()
                 .map(t -> {
                     try {
-                        System.out.println("**** " + user.getId());
                         boolean isLiked = user !=null && t.getLiked().contains(user);
                         boolean isRetweeted = user !=null && t.getRetweets().contains(user);
                         return t.getDto(userService.getDto(t.getAuthorId()), isLiked, isRetweeted);

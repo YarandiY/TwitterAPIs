@@ -168,6 +168,8 @@ public class UserService {
         UserDto userDto = new UserDto();
         userDto.setUsername(user.getUsername());
         userDto.setPicture(user.getPicture());
+        User viewer = userDetailsService.getUser();
+        userDto.setFollowed(viewer!=null && viewer.getFollowings().contains(user));
         return userDto;
     }
 

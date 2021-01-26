@@ -7,12 +7,21 @@ import ir.ac.sbu.twitter.exception.InvalidInput;
 import ir.ac.sbu.twitter.service.TweetService;
 import ir.ac.sbu.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.support.ServletContextResource;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import javax.imageio.ImageIO;
 import javax.websocket.server.PathParam;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.*;
 
 @RestController
@@ -62,5 +71,20 @@ public class HomeController {
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/show/pic/{path}")
+    public ResponseEntity show(@PathVariable String path) throws IOException {
+        path = "./usr/local/share/images/profile_images/2/" + path;
+        System.out.println(path);
+        BufferedImage bImage = ImageIO.read(new File(path));
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ImageIO.write(bImage, "jpg", bos );
+        byte [] data = bos.toByteArray();
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + path.split("\"")[0] + "\"")
+                .contentLength(data.length)
+                .body(new ByteArrayResource(data));
     }
 }
