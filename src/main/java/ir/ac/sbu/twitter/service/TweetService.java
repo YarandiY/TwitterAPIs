@@ -293,11 +293,13 @@ public class TweetService {
         List<Hashtag> hashtags = hashtagRepository.findAll();
         List<HashtagDto> result = new ArrayList<>();
         hashtags.forEach(h -> {
-            HashtagDto hashtagDto = new HashtagDto();
-            hashtagDto.setBody(h.getBody());
             long c = tweetRepository.findAllByHashtagsContaining(h).stream().count();
-            hashtagDto.setCount(c);
-            result.add(hashtagDto);
+            if(c>0) {
+                HashtagDto hashtagDto = new HashtagDto();
+                hashtagDto.setBody(h.getBody());
+                hashtagDto.setCount(c);
+                result.add(hashtagDto);
+            }
         });
         result.sort((h1, h2) -> (int) (h2.getCount() - h1.getCount()));
         return result.stream().limit(10).collect(Collectors.toList());
