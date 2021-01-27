@@ -54,7 +54,7 @@ public class UserService {
     public UserDto changeUsername(String username) throws InvalidInput {
         User user = findUser();
         boolean usernameExist = userRepository.findByUsername(username).isPresent();
-        if (usernameExist)
+        if (!user.getUsername().equals(username) && usernameExist)
             throw new InvalidInput("username exist");
         user.setUsername(username);
         userRepository.save(user);
