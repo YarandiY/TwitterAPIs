@@ -10,6 +10,7 @@ import ir.ac.sbu.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,10 @@ import javax.imageio.ImageIO;
 import javax.websocket.server.PathParam;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @RestController
@@ -77,11 +82,13 @@ public class HomeController {
         }
     }
 
-    @GetMapping(value = "/show/pic/{path}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity show(@PathVariable String path) throws IOException {
-        byte[] data = pictureService.show(path);
-        return ResponseEntity.ok()
-                .contentLength(data.length)
-                .body(new ByteArrayResource(data));
+    @GetMapping("/show/pic/{fileName}")
+    public ResponseEntity download(@PathVariable String fileName) {
+        try {
+            ResponseEntity responseEntity = pictureService.show(fileName);
+            return responseEntity;
+        } catch (IOException e) {
+            return new ResponseEntity(null, HttpStatus.NOT_FOUND);
+        }
     }
 }

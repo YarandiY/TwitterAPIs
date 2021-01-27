@@ -11,8 +11,15 @@ import ir.ac.sbu.twitter.security.UserDetailsServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -24,6 +31,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -85,26 +98,47 @@ public class PictureService {
         return userService.getDto(userId);
     }
 
-    public TweetDto addPicture(TweetDto tweet, MultipartFile picture) throws InvalidInput {
-        String fileName = "tweet_" + tweet.getId() + ".jpg";
-        String pathName = IMAGE_PATH + fileName;
+    public TweetDto addPicture(TweetDto tweet, MultipartFile file) throws InvalidInput {
+
+
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        fileName = "tweet_" + tweet.getId() + "_" + fileName;
+        Path path = Paths.get(IMAGE_PATH + fileName);
+        try {
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/files/download/")
+                .path(fileName)
+                .toUriString();
         Tweet t = tweetService.get(tweet.getId());
+        t.setPicture("/show/pic/" + fileName);
+        tweetRepository.save(t);
+        tweet.setPicture(t.getPicture());
+       /* String pathName = IMAGE_PATH + fileName;
         try {
             save(picture, pathName);
-            t.setPicture("/show/pic/" + fileName);
-            tweetRepository.save(t);
         } catch (IOException e) {
             logger.error(e.getMessage());
-        }
-        tweet.setPicture(t.getPicture());
+        }*/
         return tweet;
     }
 
-    public byte[] show(String filename) throws IOException {
-        String path = IMAGE_PATH + filename;
-        BufferedImage bImage = ImageIO.read(new File(path));
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ImageIO.write(bImage, "jpg", bos );
-        return bos.toByteArray();
+    public ResponseEntity show(String filename) throws IOException {
+        Path path = Paths.get(IMAGE_PATH + filename);
+        Resource resource = null;
+        try {
+            resource = new UrlResource(path.toUri());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        File file = resource.getFile();
+        URLConnection connection = file.toURL().openConnection();
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(connection.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }
