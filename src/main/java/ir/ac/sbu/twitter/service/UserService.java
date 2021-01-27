@@ -70,7 +70,7 @@ public class UserService {
         user.setEmail(userCreate.getEmail());
         user.setPassword(passwordEncoder.encode(userCreate.getPassword()));
         user.setUsername(userCreate.getUsername());
-        user.setPicture( "/show/pic/default_profile_picture.jpg");
+        user.setPicture("/show/pic/default_profile_picture.jpg");
         return userRepository.save(user);
     }
 
@@ -164,7 +164,9 @@ public class UserService {
                 logger.error("something went wrong!");
                 return null;
             }
-        }).collect(Collectors.toList());
+        })
+                .sorted(Comparator.comparing(TweetDto::getDate).reversed())
+                .collect(Collectors.toList());
     }
 
     public UserDto getDto(long userId) throws InvalidInput {
@@ -178,8 +180,9 @@ public class UserService {
         userDto.setPicture(user.getPicture());
         User viewer = userDetailsService.getUser();
         try {
-            userDto.setFollowed(viewer!=null && getFollowings(viewer.getUsername()).contains(user.getId()));
-        } catch (InvalidInput ignored) {}
+            userDto.setFollowed(viewer != null && getFollowings(viewer.getUsername()).contains(user.getId()));
+        } catch (InvalidInput ignored) {
+        }
         return userDto;
     }
 
@@ -198,7 +201,9 @@ public class UserService {
                         logger.error("something went wrong!");
                         return null;
                     }
-                }).collect(Collectors.toList());
+                })
+                .sorted(Comparator.comparing(TweetDto::getDate).reversed())
+                .collect(Collectors.toList());
     }
 
     public List<TweetDto> getTimeline() throws InvalidInput {
