@@ -70,6 +70,7 @@ public class UserService {
         user.setEmail(userCreate.getEmail());
         user.setPassword(passwordEncoder.encode(userCreate.getPassword()));
         user.setUsername(userCreate.getUsername());
+        user.setPicture( "/show/pic/default_profile_picture.jpg");
         return userRepository.save(user);
     }
 
