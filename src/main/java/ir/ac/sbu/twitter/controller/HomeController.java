@@ -80,8 +80,7 @@ public class HomeController {
     @GetMapping(value = "/show/pic/{path}", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity show(@PathVariable String path) throws IOException {
         byte[] data = pictureService.show(path);
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + path + "\"")
+        return ResponseEntity.ok()
                 .contentLength(data.length)
                 .body(new ByteArrayResource(data));
     }

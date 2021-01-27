@@ -58,6 +58,7 @@ public class Tweet {
         dto.setDate(date);
         dto.setAuthor(author);
         dto.setBody(body);
+        dto.setPicture(picture);
         if(liked == null)
             liked = new ArrayList<>();
         dto.setLikes(liked.size());
