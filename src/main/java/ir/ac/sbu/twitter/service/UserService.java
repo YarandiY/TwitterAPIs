@@ -139,7 +139,7 @@ public class UserService {
                 () -> new InvalidInput("the username doesnt exist")
         );
         return userRepository.findAllByFollowingsContaining(user)
-                .stream().map(u -> u.getId())
+                .stream().map(User::getId)
                 .collect(Collectors.toList());
     }
 
@@ -225,6 +225,6 @@ public class UserService {
 
     public List<UserDto> search(String username) {
         return userRepository.findAllByUsernameContaining(username)
-                .stream().map(u -> getDto(u)).collect(Collectors.toList());
+                .stream().map(this::getDto).collect(Collectors.toList());
     }
 }

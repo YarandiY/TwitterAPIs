@@ -104,7 +104,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/users/tweets/*",
                         "/tweets/get/*",
                         "/tweets/getLikes/*",
-                        "/tweets/getRetweets/*", "/show/**"
+                        "/tweets/getRetweets/*", "/show/**", "/tweets/trends"
                 )
                 .permitAll()
                 .antMatchers(SWAGGER_LIST)

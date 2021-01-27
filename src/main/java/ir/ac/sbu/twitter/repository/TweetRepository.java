@@ -15,4 +15,5 @@ public interface TweetRepository extends JpaRepository<Tweet, Long> {
     List<Tweet> getAllByLikedContaining(User user);
     List<Tweet> findAllByBodyContaining(String body);
     Tweet save(Tweet s);
+    List<Tweet> findAllByHashtagsContaining(Hashtag hashtag);
 }

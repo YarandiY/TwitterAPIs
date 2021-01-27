@@ -1,5 +1,6 @@
 package ir.ac.sbu.twitter.controller;
 
+import ir.ac.sbu.twitter.dto.HashtagDto;
 import ir.ac.sbu.twitter.dto.TweetDto;
 import ir.ac.sbu.twitter.dto.UserDto;
 import ir.ac.sbu.twitter.exception.InvalidInput;
@@ -28,9 +29,9 @@ public class TweetController {
     @PostMapping(value = "/add")
     public ResponseEntity<TweetDto> create(@RequestPart @Nullable String body, @RequestPart @Nullable MultipartFile picture) {
         System.out.println("test " + body);
-        if((body == null || body.length() < 1) && (picture == null || picture.isEmpty() || picture.getSize() < 1))
+        if ((body == null || body.length() < 1) && (picture == null || picture.isEmpty() || picture.getSize() < 1))
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        if(body == null)  body = "";
+        if (body == null) body = "";
         try {
             TweetDto dto = tweetService.add(body);
             if (picture != null) dto = pictureService.addPicture(dto, picture);
@@ -98,5 +99,11 @@ public class TweetController {
         } catch (InvalidInput invalidInput) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping(value = "/trends")
+    public ResponseEntity<List<HashtagDto>> trends() {
+        List<HashtagDto> hashtags = tweetService.getHotHashtags();
+        return new ResponseEntity<>(hashtags, HttpStatus.OK);
     }
 }
